@@ -19,6 +19,9 @@ from utils.torch_utils import select_device, load_classifier, \
                 time_synchronized, TracedModel
 from utils.download_weights import download
 
+# Added location tracking code
+from custom_object_location import object_location
+
 #For SORT tracking
 import skimage
 from sort import *
@@ -32,10 +35,12 @@ def draw_boxes(img, bbox, identities=None, categories=None, names=None, save_wit
         x2 += offset[0]
         y1 += offset[1]
         y2 += offset[1]
+        location_vec = object_location(x1,y1,x2,y2, 1)
         cat = int(categories[i]) if categories is not None else 0
         id = int(identities[i]) if identities is not None else 0
         data = (int((box[0]+box[2])/2),(int((box[1]+box[3])/2)))
-        label = str(id) + ":"+ names[cat]
+        label = str(id) + ":"+ names[cat] + ", dist:" + str(round(location_vec[2],2)) + ", ang:" + str(round(location_vec[0],2))
+        # label = str(id) + ":"+ names[cat]
         (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
         cv2.rectangle(img, (x1, y1), (x2, y2), (255,0,20), 2)
         cv2.rectangle(img, (x1, y1 - 20), (x1 + w, y1), (255,144,30), -1)
@@ -52,9 +57,25 @@ def draw_boxes(img, bbox, identities=None, categories=None, names=None, save_wit
             with open(path + '.txt', 'a') as f:
                 f.write(txt_str)
     return img
+
+#............................... Object Location of BB ............................
+"""Function to get the location of the object"""
+def get_object_location(bbox, identities=None, categories=None, names=None, shouldLog=False,offset=(0, 0)):
+    for i, box in enumerate(bbox):
+        x1, y1, x2, y2 = [int(i) for i in box]
+        x1 += offset[0]
+        x2 += offset[0]
+        y1 += offset[1]
+        y2 += offset[1]
+        cat = int(categories[i]) if categories is not None else 0
+        id = int(identities[i]) if identities is not None else 0
+        location_vec = object_location(x1,y1,x2,y2, 1)
+        
+        if shouldLog:
+            print(str(id) + " "+ names[cat] + ", Distance: ", location_vec[2], "m,", "Az Angle: ", location_vec[0], "deg", "El Angle: ", location_vec[1], "deg",)
+        return location_vec
+
 #..............................................................................
-
-
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz, trace, colored_trk, save_bbox_dim, save_with_object_id= opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace, opt.colored_trk, opt.save_bbox_dim, opt.save_with_object_id
     save_img = not opt.nosave and not source.endswith('.txt')  # save inference images
@@ -232,16 +253,18 @@ def detect(save_img=False):
                 # draw boxes for visualization
                 if len(tracked_dets)>0:
                     bbox_xyxy = tracked_dets[:,:4]
+                    
                     identities = tracked_dets[:, 8]
                     categories = tracked_dets[:, 4]
                     draw_boxes(im0, bbox_xyxy, identities, categories, names, save_with_object_id, txt_path)
+                    location_vec = get_object_location(bbox_xyxy, identities, categories, names, shouldLog=True)
+                    
             else: #SORT should be updated even with no detections
                 tracked_dets = sort_tracker.update()
             #........................................................
             
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
-            
         
             # Stream results
             if view_img:

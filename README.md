@@ -44,30 +44,29 @@ pip install -r requirements.txt
 - Run the code with mentioned command below (by default, pretrained [yolov7](https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7.pt) weights will be automatically downloaded into the working directory if they don't already exist).
 ```
 # for detection only
-python detect.py --weights yolov7.pt --source "your video.mp4"
+python3 detect.py --weights yolov7.pt --source "your video.mp4"
 
 #if you want to change source file
-python detect_and_track.py --weights yolov7.pt --source "your video.mp4"
+python3 detect_and_track.py --weights yolov7.pt --source "your video.mp4"
 
 #for WebCam
-python detect_and_track.py --weights yolov7.pt --source 0
+python3 detect_and_track.py --weights yolov7.pt --source 0
 
 #for External Camera
-python detect_and_track.py --weights yolov7.pt --source 1
+python3 detect_and_track.py --weights yolov7.pt --source 1
 
 #For LiveStream (Ip Stream URL Format i.e "rtsp://username:pass@ipaddress:portno/video/video.amp")
-python detect_and_track.py --source "your IP Camera Stream URL" --device 0
+python3 detect_and_track.py --source "your IP Camera Stream URL" --device 0
 
 #for specific class (person)
-python detect_and_track.py --weights yolov7.pt --source "your video.mp4" --classes 0
+python3 detect_and_track.py --weights yolov7.pt --source "your video.mp4" --classes 0
 
 #for colored tracks 
-python detect_and_track.py --weights yolov7.pt --source "your video.mp4" --colored-trk
+python3 detect_and_track.py --weights yolov7.pt --source "your video.mp4" --colored-trk
 
 #for saving tracks centroid, track id and bbox coordinates
-python detect_and_track.py --weights yolov7.pt --source "your video.mp4" --save-txt --save-bbox-dim
+python3 detect_and_track.py --weights yolov7.pt --source "your video.mp4" --save-txt --save-bbox-dim
 ```
-
 
 - Output file will be created in the ```working-dir/runs/detect/obj-tracking``` with original filename
 
@@ -106,3 +105,13 @@ python detect_and_track.py --weights yolov7.pt --source "your video.mp4" --save-
 - https://medium.com/augmented-startups/develop-an-analytics-dashboard-using-streamlit-e6282fa5e0f
 
 For more details, you can reach out to me on [Medium](https://chr043416.medium.com/) or can connect with me on [LinkedIn](https://www.linkedin.com/in/muhammadrizwanmunawar/)
+
+
+
+
+# My Notes
+- After openning the container you can run the following:
+```
+python3 -m pip install tensorflow[and-cuda]
+python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+```

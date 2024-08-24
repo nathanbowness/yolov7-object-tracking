@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Detect: Webcam, With Object",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "detect.py ",
+            "console": "integratedTerminal",
+            "args": "--weights yolov7.pt --source 0 --conf-thres 0.4"
+        },
+        {
+            "name": "Detect (ND): Webcam, With Object",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "detect.py ",
+            "console": "integratedTerminal",
+            "args": "--weights yolov7.pt --source 0 --conf-thres 0.4 --no-download"
+        },
+        {
+            "name": "Detect (ND): Video, Car Tracking",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "detect.py ",
+            "console": "integratedTerminal",
+            "args": "--weights yolov7.pt --source /share/M0101.mp4 --conf-thres 0.4 --no-download --view-img"
+        },
+        {
+            "name": "Tracking: Webcam, With Object",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "detect_and_track.py ",
+            "console": "integratedTerminal",
+            "args": "--weights yolov7.pt --source 0 --conf-thres 0.4"
+        }
+    ]
+}

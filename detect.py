@@ -17,6 +17,23 @@ from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 from utils.download_weights import download
 
+# Added location tracking code
+from custom_object_location import object_location
+
+#............................... Object Location of BB ............................
+"""Function to get the location of the object"""
+def get_object_location(xyxy, obj, shouldLog=False,):
+    x1 = int(xyxy[0])
+    y1 = int(xyxy[1])
+    x2 = int(xyxy[2])
+    y2 = int(xyxy[3])
+    location_vec = object_location(x1,y1,x2,y2)
+    
+    if shouldLog:
+        print(obj + ", Distance: ", location_vec[2], "m,", "Az Angle: ", location_vec[0], "deg", "El Angle: ", location_vec[1], "deg",)
+    return location_vec
+
+#..............................................................................
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz, trace,blur = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace,opt.blur
     save_img = not opt.nosave and not source.endswith('.txt')  # save inference images
@@ -135,17 +152,30 @@ def detect(save_img=False):
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
+                    # Custom
+                    iden_obj = names[int(cls)]
+                    location_vec = get_object_location(xyxy, iden_obj, shouldLog=True)
+                    label = f'{iden_obj} {conf:.2f}, dist: {location_vec[2]:.2f}m, Az Angle: {location_vec[0]:.2f}deg'
+                    
                     if save_img or view_img:  # Add bbox to image
-                        label = f'{names[int(cls)]} {conf:.2f}'
+                        # label = f'{names[int(cls)]}, Conf: {conf:.2f}'
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
                         
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+            print()
 
             # Stream results
             if view_img:
-                cv2.imshow(str(p), im0)
-                if cv2.waitKey(1) == ord('q'):  # q to quit
+                # Custom - make window bigger, resize image to be larger so it's easier to see
+                window_name = 'Object Detector'
+                cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+                cv2.resizeWindow(window_name, 1000, 800)
+                # resized_image = cv2.resize(im0, (800, 600))
+                cv2.imshow(window_name, im0)
+                
+                # cv2.imshow(str(p), im0)
+                if cv2.waitKey(50) == ord('q'):  # q to quit
                   cv2.destroyAllWindows()
                   raise StopIteration
 
